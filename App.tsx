@@ -3,6 +3,8 @@ import { Alert, Button, StyleSheet, Text, View } from "react-native";
 import { Routes } from "./src/Routes";
 import { SignIn } from "./src/screens/SignIn";
 import { Loading } from "./src/components/Loading";
+import { THEME } from "./src/theme";
+
 import {
   useFonts,
   Roboto_400Regular,
@@ -12,7 +14,7 @@ import {
 export default function App() {
   const [fontsLoaded] = useFonts({ Roboto_400Regular, Roboto_700Bold });
   return (
-    <NativeBaseProvider>
+    <NativeBaseProvider theme={THEME}>
       <StatusBar
         barStyle="light-content"
         backgroundColor="transparent"
