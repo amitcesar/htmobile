@@ -7,8 +7,8 @@ import { SignIn } from "../screens/SignIn";
 export function AppRoutes() {
   return (
     <Navigator>
-      <Screen name="signin" component={SignIn} />
-      <Screen name="Home" component={Home} />
+      <Screen name="SignIn" component={SignIn} />
+      <Screen name="home" component={Home} />
     </Navigator>
   );
 }
