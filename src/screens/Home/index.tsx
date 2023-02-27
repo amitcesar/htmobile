@@ -11,16 +11,8 @@ import { Input } from "../SignIn/Input";
 
 import firestore from "@react-native-firebase/firestore";
 
-function rotationModels(modelRef) {
-  return useFrame(() => {
-    if (!modelRef.current) {
-      return;
-    }
-
-    modelRef.current.rotation.y += 0.01;
-    modelRef.current.rotation.y += 0.01;
-  });
-}
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
 
 function CubeModel({ InputColor, ...rest }) {
   const cubeRef = useRef<Mesh>(null);
@@ -40,6 +32,17 @@ function CubeModel({ InputColor, ...rest }) {
       <boxGeometry attach="geometry" args={[1, 1, 1]} />
     </mesh>
   );
+}
+
+function rotationModels(modelRef) {
+  return useFrame(() => {
+    if (!modelRef.current) {
+      return;
+    }
+
+    modelRef.current.rotation.y += 0.01;
+    modelRef.current.rotation.y += 0.01;
+  });
 }
 
 function SphereModel({ InputColor, ...rest }) {
@@ -88,6 +91,12 @@ type RouteParams = {
   currentUser: string;
 };
 
+const colorScheme = yup.object({
+  colorCube: yup.string().min(3, "min 3 "),
+  colorSphere: yup.string().min(3, "min 3"),
+  colorOcta: yup.string().min(3, "min 3"),
+});
+
 export function Home() {
   const [colorCube, setColorCube] = useState("");
   const [colorSphere, setColorSphere] = useState("");
@@ -102,6 +111,7 @@ export function Home() {
       colorSphere: "",
       colorOcta: "",
     },
+    resolver: yupResolver(colorScheme),
   });
 
   async function handleGetOne() {
@@ -121,25 +131,25 @@ export function Home() {
 
   async function handleColorSubmit({
     colorCube,
-    colorOcta,
     colorSphere,
+    colorOcta,
   }: formDataProps) {
+    console.log(colorCube, colorSphere, colorOcta);
     firestore()
       .collection("3dModels")
       .doc(currentUser.uid)
-      .set({
+      .update({
         colorCube,
         colorSphere,
         colorOcta,
       })
-      .then((response) => {
-        console.log(response);
-      })
+      .then((response) => {})
       .catch((error) => console.log("error!", error))
       .finally(() => {
+        // console.log(colorCube, colorSphere, colorOcta);
         setColorCube(colorCube);
-        setColorSphere(colorSphere);
         setColorOcta(colorOcta);
+        setColorSphere(colorSphere);
       });
 
     reset();
@@ -157,7 +167,7 @@ export function Home() {
 
   useEffect(() => {
     // handleGetAllRegisterColors();
-    //   handleGetOne();
+    // handleGetOne();
   }, []);
 
   useEffect(() => {
@@ -167,7 +177,7 @@ export function Home() {
       .onSnapshot({
         error: (e) => console.log(e),
         next: (documentsnapShot) => {
-          handleSetColorforModels({
+          handleColorSubmit({
             id: documentsnapShot.id,
             ...documentsnapShot.data(),
           });
@@ -183,11 +193,7 @@ export function Home() {
         <pointLight position={[10, 10, 10]} />
         <directionalLight position={[0, 0, 5]} />
         <group>
-          <CubeModel
-            position={[0, 2.5, 0]}
-            InputColor={colorCube}
-            color="red"
-          />
+          <CubeModel position={[0, 2.5, 0]} InputColor={colorCube} />
           <OctahedronModel position={[0, -2.5, 0]} InputColor={colorOcta} />
           <SphereModel position={[2, 0, 0]} InputColor={colorSphere} />
         </group>

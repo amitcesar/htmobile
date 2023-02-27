@@ -23,12 +23,7 @@ export type StackNavigation =
 
 export function SignIn() {
   const { navigate } = useNavigation<StackNavigation>();
-  /*
-     navigate("home", {
-          userId: result.user.uid,
-        })
-  */
-  //  firestore().collection("3dModels").doc(result.user.uid).set(result.user)
+
   const handleLoginWithEmailAndPassword = () => {
     auth()
       .signInWithEmailAndPassword("amitcesar@email.com", "coxinha123")
@@ -50,20 +45,18 @@ export function SignIn() {
   return (
     <VStack bg="info.200" flex={1} alignItems="center" px={10} pt={20}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <KeyboardAvoidingView behavior="position" enabled>
-          <Center>
-            <Heading color={"gray.900"} my={24}>
-              Acesse sua conta
-            </Heading>
+        <Center>
+          <Heading color={"gray.900"} my={24}>
+            Acesse sua conta
+          </Heading>
 
-            <Input placeholder="Email" />
-            <Input placeholder="Senha" />
-            <Button
-              title="Fazer Login"
-              onPress={handleLoginWithEmailAndPassword}
-            />
-          </Center>
-        </KeyboardAvoidingView>
+          <Input placeholder="Email" />
+          <Input placeholder="Senha" />
+          <Button
+            title="Fazer Login"
+            onPress={handleLoginWithEmailAndPassword}
+          />
+        </Center>
       </TouchableWithoutFeedback>
     </VStack>
   );
