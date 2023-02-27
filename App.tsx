@@ -1,37 +1,24 @@
-import { Alert, Button, StyleSheet, Text, View } from "react-native";
-import auth from "@react-native-firebase/auth";
+import { NativeBaseProvider, StatusBar } from "native-base";
+import { Routes } from "./src/Routes";
+import { THEME } from "./src/theme";
 
-const handleLoginWithEmailAndPassword = () => {
-  auth()
-    .signInWithEmailAndPassword("amitcesar@email.com", "coxinha123")
-    .then((result) => console.log(result))
-    .catch((error) => {
-      if (
-        error.code === "auth/user-not-found" ||
-        error.code === "auth/wrong-password"
-      ) {
-        Alert.alert("Usuario não encontrado");
-      }
-    });
-};
+import {
+  useFonts,
+  Roboto_400Regular,
+  Roboto_700Bold,
+} from "@expo-google-fonts/roboto";
 
 export default function App() {
+  const [fontsLoaded] = useFonts({ Roboto_400Regular, Roboto_700Bold });
   return (
-    <View style={styles.container}>
-      <Text>Expo Tester</Text>
-      <Button
-        title="Login com Email e Senha"
-        onPress={handleLoginWithEmailAndPassword}
+    <NativeBaseProvider theme={THEME}>
+      <StatusBar
+        barStyle="light-content"
+        backgroundColor="transparent"
+        translucent
       />
-    </View>
+
+      <Routes />
+    </NativeBaseProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});
