@@ -92,7 +92,6 @@ export function Home() {
   const [colorCube, setColorCube] = useState("");
   const [colorSphere, setColorSphere] = useState("");
   const [colorOcta, setColorOcta] = useState("");
-  const [colorStates, setColorStates] = useState([]);
 
   const route = useRoute();
   const { currentUser } = route.params as RouteParams;
@@ -105,30 +104,19 @@ export function Home() {
     },
   });
 
-  const handleGetAllRegisterColors = async () => {
-    const subscribe = firestore()
-      .collection("3dModels")
-      .onSnapshot((querySnapshot) => {
-        const data = querySnapshot.docs
-          .filter((doc) => doc.id === currentUser.uid)
-          .map((doc) => {
-            console.log(" => ", doc.data());
-          });
-      });
-    return () => subscribe();
-  };
-
   async function handleGetOne() {
     firestore()
       .collection("3dModels")
       .doc(currentUser.uid)
-      .get()
-      .then((response) =>
-        handleSetColorforModels({
-          id: response.id,
-          ...response.data(),
-        })
-      );
+      .onSnapshot({
+        error: (e) => console.log(e),
+        next: (documentsnapShot) => {
+          handleSetColorforModels({
+            id: documentsnapShot.id,
+            ...documentsnapShot.data(),
+          });
+        },
+      });
   }
 
   async function handleColorSubmit({
@@ -157,40 +145,37 @@ export function Home() {
     reset();
   }
 
-  function handleSetColorforModels(data) {
+  function handleSetColorforModels({
+    colorCube,
+    colorOcta,
+    colorSphere,
+  }: formDataProps) {
     setColorCube(colorCube);
     setColorSphere(colorSphere);
     setColorOcta(colorOcta);
   }
 
-  function handleChangeColor() {
-    firestore().collection("3dModels").doc(currentUser.uid).update({
-      colorCube,
-      colorSphere,
-      colorOcta,
-    });
-  }
-
   useEffect(() => {
     // handleGetAllRegisterColors();
-    // handleGetOne();
+    //   handleGetOne();
   }, []);
 
   useEffect(() => {
     const subscribe = firestore()
       .collection("3dModels")
-      .onSnapshot((querySnapshot) => {
-        const data = querySnapshot.docs
-          .filter((doc) => doc.id === currentUser.uid)
-          .map((doc) => {
-            return doc.data();
+      .doc(currentUser.uid)
+      .onSnapshot({
+        error: (e) => console.log(e),
+        next: (documentsnapShot) => {
+          handleSetColorforModels({
+            id: documentsnapShot.id,
+            ...documentsnapShot.data(),
           });
-
-        setColorStates(data);
+        },
       });
     return () => subscribe();
   }, []);
-  console.log("states", colorStates);
+
   return (
     <>
       <Canvas gl={{ toneMapping: ACESFilmicToneMapping }}>
