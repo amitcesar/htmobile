@@ -1,8 +1,5 @@
 import { NativeBaseProvider, StatusBar } from "native-base";
-import { Alert, Button, StyleSheet, Text, View } from "react-native";
 import { Routes } from "./src/Routes";
-import { SignIn } from "./src/screens/SignIn";
-import { Loading } from "./src/components/Loading";
 import { THEME } from "./src/theme";
 
 import {
@@ -20,6 +17,7 @@ export default function App() {
         backgroundColor="transparent"
         translucent
       />
+
       <Routes />
     </NativeBaseProvider>
   );
