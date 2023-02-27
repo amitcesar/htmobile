@@ -94,7 +94,7 @@ type RouteParams = {
 const colorScheme = yup.object({
   colorCube: yup.string().min(3, "min 3 "),
   colorSphere: yup.string().min(3, "min 3"),
-  colorOcta: yup.string().min(3, "min 3"),
+  colorOcta: yup.string(),
 });
 
 export function Home() {
@@ -138,7 +138,7 @@ export function Home() {
     firestore()
       .collection("3dModels")
       .doc(currentUser.uid)
-      .update({
+      .set({
         colorCube,
         colorSphere,
         colorOcta,

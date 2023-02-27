@@ -26,7 +26,7 @@ export function SignIn() {
 
   const handleLoginWithEmailAndPassword = () => {
     auth()
-      .signInWithEmailAndPassword("amitcesar@email.com", "coxinha123")
+      .signInWithEmailAndPassword("cesinhamaster@email.com", "cesar123")
       .then((result) =>
         navigate("home", {
           currentUser: result.user,
