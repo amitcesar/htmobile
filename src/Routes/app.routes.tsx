@@ -5,7 +5,7 @@ import { SignIn } from "../screens/SignIn";
 
 export type AppStackRoutesParamList = {
   SignIn: undefined;
-  home: { currentUser: string };
+  home: { currentUser: object };
 };
 
 const { Screen, Navigator } =
@@ -15,7 +15,7 @@ export function AppRoutes() {
   return (
     <Navigator>
       <Screen name="SignIn" component={SignIn} />
-      <Screen name="home" component={Home} />
+      <Screen name="home" component={Home} options={{ title: "Home" }} />
     </Navigator>
   );
 }
