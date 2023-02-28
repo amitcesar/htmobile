@@ -16,6 +16,11 @@ export const THEME = extendTheme({
       400: '#ececec',
       300: '#f6f6f6',
       100: '#FFFFFF',
+    },
+    customBlue: {
+      500: '#3E78FF',
+      400: '#6F9AFF',
+
     }
     
   },

@@ -1,6 +1,5 @@
 import { useRef, useState, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber/native";
-import { useRoute } from "@react-navigation/native";
 import { HStack, FormControl } from "native-base";
 import { useForm, Controller } from "react-hook-form";
 import { ACESFilmicToneMapping, Mesh } from "three";
@@ -11,11 +10,34 @@ import { Button } from "../../components/Button";
 import { Input } from "../../components/Input";
 
 import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
+import { colorScheme } from "../../schemas/colorScheme";
+import { useRoute } from "@react-navigation/native";
 
 type DataModelColorProps = {
   InputColor: string;
 };
+
+type formDataProps = {
+  id?: string;
+  colorCube: string;
+  colorSphere: string;
+  colorOcta: string;
+};
+
+type RouteParams = {
+  currentUser: string;
+};
+
+function rotationModels(modelRef) {
+  return useFrame(() => {
+    if (!modelRef.current) {
+      return;
+    }
+
+    modelRef.current.rotation.y += 0.01;
+    modelRef.current.rotation.y += 0.01;
+  });
+}
 
 function CubeModel({ InputColor, ...rest }: DataModelColorProps) {
   const cubeRef = useRef<Mesh>(null);
@@ -28,17 +50,6 @@ function CubeModel({ InputColor, ...rest }: DataModelColorProps) {
       <boxGeometry attach="geometry" args={[1, 1, 1]} />
     </mesh>
   );
-}
-
-function rotationModels(modelRef) {
-  return useFrame(() => {
-    if (!modelRef.current) {
-      return;
-    }
-
-    modelRef.current.rotation.y += 0.01;
-    modelRef.current.rotation.y += 0.01;
-  });
 }
 
 function SphereModel({ InputColor, ...rest }: DataModelColorProps) {
@@ -65,23 +76,6 @@ function OctahedronModel({ InputColor, ...rest }: DataModelColorProps) {
   );
 }
 
-type formDataProps = {
-  id?: string;
-  colorCube: string;
-  colorSphere: string;
-  colorOcta: string;
-};
-
-type RouteParams = {
-  currentUser: string;
-};
-
-const colorScheme = yup.object({
-  colorCube: yup.string().min(3, "min 3 "),
-  colorSphere: yup.string().min(3, "min 3"),
-  colorOcta: yup.string(),
-});
-
 export function Home() {
   const [colorCube, setColorCube] = useState("");
   const [colorSphere, setColorSphere] = useState("");
@@ -99,19 +93,19 @@ export function Home() {
     resolver: yupResolver(colorScheme),
   });
 
+  const currentUserId = currentUser.uid;
+  const collectionRef = firestore().collection("3dModels").doc(currentUserId);
+
   async function handleGetOne() {
-    firestore()
-      .collection("3dModels")
-      .doc(currentUser.uid)
-      .onSnapshot({
-        error: (e) => console.log(e),
-        next: (documentsnapShot) => {
-          handleColorSubmit({
-            id: documentsnapShot.id,
-            ...documentsnapShot.data(),
-          });
-        },
-      });
+    collectionRef.onSnapshot({
+      error: (e) => console.log(e),
+      next: (documentsnapShot) => {
+        handleColorSubmit({
+          id: documentsnapShot.id,
+          ...documentsnapShot.data(),
+        });
+      },
+    });
   }
 
   async function handleColorSubmit({
@@ -119,44 +113,23 @@ export function Home() {
     colorSphere,
     colorOcta,
   }: formDataProps) {
-    firestore()
-      .collection("3dModels")
-      .doc(currentUser.uid)
+    collectionRef
       .set({
         colorCube,
         colorSphere,
         colorOcta,
       })
-      .then((response) => {})
-      .catch((error) => console.log("error!", error))
-      .finally(() => {
+      .then(() => {
         setColorCube(colorCube);
         setColorOcta(colorOcta);
         setColorSphere(colorSphere);
-      });
-
+      })
+      .catch((error) => console.log("error!", error));
     reset();
   }
 
   useEffect(() => {
-    // handleGetAllRegisterColors();
-    // handleGetOne();
-  }, []);
-
-  useEffect(() => {
-    const subscribe = firestore()
-      .collection("3dModels")
-      .doc(currentUser.uid)
-      .onSnapshot({
-        error: (e) => console.log(e),
-        next: (documentsnapShot) => {
-          handleColorSubmit({
-            id: documentsnapShot.id,
-            ...documentsnapShot.data(),
-          });
-        },
-      });
-    return () => subscribe();
+    handleGetOne();
   }, []);
 
   return (
@@ -167,10 +140,11 @@ export function Home() {
         <directionalLight position={[0, 0, 5]} />
         <group>
           <CubeModel position={[0, 2.5, 0]} InputColor={colorCube} />
-          <OctahedronModel position={[0, -2.5, 0]} InputColor={colorOcta} />
-          <SphereModel position={[0, 0, 0]} InputColor={colorSphere} />
+          <OctahedronModel position={[0, 0, 0]} InputColor={colorOcta} />
+          <SphereModel position={[0, -2.5, 0]} InputColor={colorSphere} />
         </group>
       </Canvas>
+
       <FormControl>
         <HStack justifyContent="center" space={1}>
           <Controller
@@ -179,24 +153,11 @@ export function Home() {
             render={({ field: { onChange, value, onBlur } }) => (
               <Input
                 w={"1/3"}
-                placeholder="Digite uma cor"
+                placeholder="Cor do Cubo"
                 onChangeText={onChange}
                 value={value}
                 onBlur={onBlur}
-              />
-            )}
-          />
-
-          <Controller
-            control={control}
-            name="colorSphere"
-            render={({ field: { onChange, value, onBlur } }) => (
-              <Input
-                w={"1/3"}
-                placeholder="Digite uma cor"
-                onChangeText={onChange}
-                value={value}
-                onBlur={onBlur}
+                fontSize="sm"
               />
             )}
           />
@@ -207,10 +168,26 @@ export function Home() {
             render={({ field: { onChange, value, onBlur } }) => (
               <Input
                 w={"1/3"}
-                placeholder="Digite uma cor"
+                placeholder="Cor do Octaedro"
                 onChangeText={onChange}
                 value={value}
                 onBlur={onBlur}
+                fontSize="sm"
+              />
+            )}
+          />
+
+          <Controller
+            control={control}
+            name="colorSphere"
+            render={({ field: { onChange, value, onBlur } }) => (
+              <Input
+                w={"1/3"}
+                placeholder="Cor do Icosaedro"
+                onChangeText={onChange}
+                value={value}
+                onBlur={onBlur}
+                fontSize="sm"
               />
             )}
           />
