@@ -26,8 +26,7 @@ export function FormSignIn() {
   function handleLoginWithEmailAndPassword() {
     const { email, password } = getValues();
     auth()
-      .signInWithEmailAndPassword("userteste@email.com", "coxinha123")
-      // .signInWithEmailAndPassword(email, password)
+      .signInWithEmailAndPassword(email, password)
       .then((result) =>
         navigate("home", {
           currentUser: result.user,
