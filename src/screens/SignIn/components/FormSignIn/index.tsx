@@ -34,11 +34,11 @@ export function FormSignIn() {
         })
       )
       .catch((error) => {
-        if (error.code === "auth/user-not-found") {
-          Alert.alert("Usuario não encontrado ");
-        }
-        if (error.code === "auth/wrong-password") {
-          Alert.alert("Senha incorreta");
+        if (
+          error.code === "auth/user-not-found" ||
+          error.code === "auth/wrong-password"
+        ) {
+          Alert.alert("Usuario não encontrado. Email e/ou senha invalida!");
         }
       });
   }
